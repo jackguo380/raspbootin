@@ -309,6 +309,13 @@ int main(int argc, char *argv[]) {
 			done = true;
 			leave = true;
 		    }
+		    // hacky pseudo echo
+		    if (len > 0) {
+			if (write(STDOUT_FILENO, &buf[end], len) == -1) {
+			    perror("write()");
+			    do_exit(fd, EXIT_FAILURE);
+			}
+		    }
 		    end += len;
 		}
 		// output from the RPi, copy to STDOUT
