@@ -16,10 +16,10 @@
 #  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 # source files
-SOURCES  := $(wildcard *.cc)
+SOURCES  := $(wildcard *.c)
 
 # object files
-OBJS        += $(patsubst %.cc,%.o,$(SOURCES))
+OBJS        += $(patsubst %.c,%.o,$(SOURCES))
 
 # Build flags
 CXXFLAGS    := -O2 -W -Wall -g
@@ -28,7 +28,7 @@ CXXFLAGS    := -O2 -W -Wall -g
 all: raspbootcom
 
 raspbootcom: raspbootcom.o
-	$(CXX) -o $@ $+
+	$(CC) -o $@ $+
 
 clean:
 	$(RM) -f $(OBJS) raspbootcom
@@ -37,6 +37,6 @@ dist-clean: clean
 	find -name "*~" -delete
 	find -name "*.d" -delete
 
-# C++.
-%.o: %.cc Makefile
-	g++ $(CXXFLAGS) -c $< -o $@
+# c
+%.o: %.c Makefile
+	$(CC) $(CXXFLAGS) -c $< -o $@

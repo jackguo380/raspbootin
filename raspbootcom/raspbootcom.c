@@ -19,6 +19,7 @@
 #define _BSD_SOURCE             /* See feature_test_macros(7) */
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
