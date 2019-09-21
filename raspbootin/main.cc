@@ -29,7 +29,7 @@ extern "C" {
 }
 
 
-#define LOADER_ADDR 0x2000000
+#define LOADER_ADDR 0x1000000
 
 
 typedef void (*entry_fn)(uint32_t r0, uint32_t r1, const Header *atags);

@@ -35,17 +35,17 @@ Start:
 	// we're loaded at 0x8000, relocate to _start.
 .relocate:
 	// copy from r3 to r4.
-	mov	r3, #0x8000
-	ldr	r4, =_start
-	ldr	r9, =_data_end
+	//mov	r3, #0x8000
+	//ldr	r4, =_start
+	//ldr	r9, =_data_end
 1:
-	// Load multiple from r3, and store at r4.
-	ldmia	r3!, {r5-r8}
-	stmia	r4!, {r5-r8}
+	//// Load multiple from r3, and store at r4.
+	//ldmia	r3!, {r5-r8}
+	//stmia	r4!, {r5-r8}
 
-	// If we're still below file_end, loop.
-	cmp	r4, r9
-	blo	1b
+	//// If we're still below file_end, loop.
+	//cmp	r4, r9
+	//blo	1b
 
 	// Clear out bss.
 	ldr	r4, =_bss_start

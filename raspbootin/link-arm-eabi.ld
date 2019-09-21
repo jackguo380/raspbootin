@@ -20,14 +20,22 @@ ENTRY(Start)
 
 SECTIONS
 {
-    /* Starts at LOADER_ADDR. */
     . = 0x8000;
     Start = .;
-    . = 0x2000000;
+    .text.boot : {
+        KEEP(*(.text.boot))
+    }
+
+    .userkernel : {
+        FILL(0X00000000);
+        . = 0x1000000;
+    }
+
+    /* Starts at LOADER_ADDR. */
+    . = ALIGN(4096);
     _start = .;
     _text_start = .;
     .text : {
-        KEEP(*(.text.boot))
         *(.text)
     }
     . = ALIGN(4096); /* align to page size */
