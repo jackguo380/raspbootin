@@ -29,10 +29,12 @@ $ make
 To set up the SD Card ensure its formatted correctly as with FAT.
 
 Get the latest firmware for the Raspberry Pi from https://github.com/raspberrypi/firmware.
+
+Copy the `start.elf` and `bootcode.bin` from it.
 ```sh
-git clone https://github.com/raspberrypi/firmware rpi-firmware
-cd rpi-firmware
-cp boot/start.elf boot/bootcode.bin /mnt/myraspberrypi-sdcard
+$ git clone https://github.com/raspberrypi/firmware rpi-firmware
+$ cd rpi-firmware
+$ cp boot/start.elf boot/bootcode.bin /mnt/myraspberrypi-sdcard
 ```
 
 Then copy the `raspbootin/kernel.img` and `raspbootin/config.txt` to the SD Card for the Raspberry Pi 2.
@@ -49,12 +51,11 @@ kernel7.img
 start.elf
 ```
 
-
 #### Loading new Kernels
 1. Ensure the Raspberry Pi is off and the serial cable is correctly plugged in.
 2. Run `raspbootcom`
 ```sh
-./raspbootcom/raspbootcom /dev/ttyUSB0 /path/to/my/kernel.img
+$ ./raspbootcom/raspbootcom /dev/ttyUSB0 /path/to/my/kernel.img
 ```
 3. Turn on the Raspberry Pi.
 
