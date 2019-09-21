@@ -119,6 +119,9 @@ namespace UART {
     }
 
     void deinit(void) {
+	// Ensure we transmitted everything
+	while (MMIO::read(UART0_FR) & (1 << 3));
+
 	// Disable UART0.
 	MMIO::write(UART0_CR, 0x00000000);
     }

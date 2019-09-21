@@ -195,7 +195,6 @@ int main(int argc, char *argv[]) {
     size_t start = 0;
     size_t end = 0;
     bool done = false, leave = false;
-    int breaks = 0;
 
     printf("Raspbootcom V1.0\n");
 
@@ -321,7 +320,7 @@ int main(int argc, char *argv[]) {
 		}
 		// output from the RPi, copy to STDOUT
 		if (FD_ISSET(fd, &rfds)) {
-		    char buf2[BUF_SIZE];
+		    char buf2[BUF_SIZE+1];
 		    ssize_t len = read(fd, buf2, BUF_SIZE);
 		    switch(len) {
 		    case -1:
@@ -331,39 +330,26 @@ int main(int argc, char *argv[]) {
 			done = true;
 		    }
 		    // scan output for tripple break (^C^C^C)
-		    // send kernel on tripple break, otherwise output text
-		    const char *p = buf2;
-		    while(p < &buf2[len]) {
-			const char *q = index(p, '\x03');
-			if (q == NULL) q = &buf2[len];
-			if (p == q) {
-			    ++breaks;
-			    ++p;
-			    if (breaks == 3) {
-				if (start != end) {
-				    fprintf(stderr, "Discarding input after tripple break\n");
-				    start = end = 0;
-				}
-				send_kernel(fd, argv[2]);
-				breaks = 0;
-			    }
-			} else {
-			    while (breaks > 0) {
-				ssize_t len2 = write(STDOUT_FILENO, "\x03\x03\x03", breaks);
-				if (len2 == -1) {
-				    perror("write()");
-				    do_exit(fd, EXIT_FAILURE);
-				}
-				breaks -= len2;
-			    }
-			    while(p < q) {
-				ssize_t len2 = write(STDOUT_FILENO, p, q - p);
-				if (len2 == -1) {
-				    perror("write()");
-				    do_exit(fd, EXIT_FAILURE);
-				}
-				p += len2;
-			    }
+		    char *buf2_end = buf2+len;
+		    *buf2_end = 0; // ensure theres a null byte
+		    const char *break_c = index(buf2, '\x03');
+
+		    // Found 3 breaks in a row, send kernel
+		    if (break_c != NULL && (buf2_end - break_c) >= 3
+			    && break_c[1] == '\x03' && break_c[2] == '\x03') {
+			ssize_t len2 = write(STDOUT_FILENO, buf2, break_c - buf2);
+			if (len2 == -1) {
+			    perror("write()");
+			    do_exit(fd, EXIT_FAILURE);
+			}
+
+			send_kernel(fd, argv[2]);
+		    } else {
+			// Regular output, just pass it through
+			ssize_t len2 = write(STDOUT_FILENO, buf2, len);
+			if (len2 == -1) {
+			    perror("write()");
+			    do_exit(fd, EXIT_FAILURE);
 			}
 		    }
 		}
