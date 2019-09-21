@@ -10,7 +10,7 @@ Usage (CPEN 432):
 ------
 
 #### Building
-Ensure that your toolchain (`arm-none-eabi-gcc`) is on your path
+Ensure that the toolchain (`arm-none-eabi-gcc`) is runnable:
 ```sh
 $ arm-none-eabi-gcc --version
 arm-none-eabi-gcc (GNU Tools for ARM Embedded Processors) 4.9.3 20150529 (release) [ARM/embedded-4_9-branch revision 224288]
@@ -28,16 +28,33 @@ $ make
 #### SD Card Setup
 To set up the SD Card ensure its formatted correctly as with FAT.
 
+Get the latest firmware for the Raspberry Pi from https://github.com/raspberrypi/firmware.
+```sh
+git clone https://github.com/raspberrypi/firmware rpi-firmware
+cd rpi-firmware
+cp boot/start.elf boot/bootcode.bin /mnt/myraspberrypi-sdcard
+```
+
 Then copy the `raspbootin/kernel.img` and `raspbootin/config.txt` to the SD Card for the Raspberry Pi 2.
 ```sh
-$ cp raspbootin/kernel.img raspbootin/config.txt /mnt/sdcard/
+$ cp raspbootin/config.txt /mnt/myraspberrypi-sdcard/
+$ cp raspbootin/kernel.img /mnt/myraspberrypi-sdcard/kernel7.img
 ```
+
+Overall only these files should exist on the SD Card:
+```
+bootcode.bin
+config.txt
+kernel7.img
+start.elf
+```
+
 
 #### Loading new Kernels
 1. Ensure the Raspberry Pi is off and the serial cable is correctly plugged in.
 2. Run `raspbootcom`
 ```sh
-./raspbootcom/raspbootcom /dev/ttyUSB0 /where/you/have/your/kernel.img.
+./raspbootcom/raspbootcom /dev/ttyUSB0 /path/to/my/kernel.img
 ```
 3. Turn on the Raspberry Pi.
 
