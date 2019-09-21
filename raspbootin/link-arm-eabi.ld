@@ -21,6 +21,8 @@ ENTRY(Start)
 SECTIONS
 {
     /* Starts at LOADER_ADDR. */
+    . = 0x8000;
+    Start = .;
     . = 0x2000000;
     _start = .;
     _text_start = .;
