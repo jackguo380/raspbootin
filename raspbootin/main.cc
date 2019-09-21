@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <archinfo.h>
 #include <uart.h>
-#include <kprintf.h>
+#include <printnumk.h>
 #include <atag.h>
 
 extern "C" {
@@ -31,16 +31,8 @@ extern "C" {
 
 #define LOADER_ADDR 0x2000000
 
-const char hello[] = "\r\nRaspbootin V1.1\r\n";
-const char halting[] = "\r\n*** system halting ***";
 
 typedef void (*entry_fn)(uint32_t r0, uint32_t r1, const Header *atags);
-
-static constexpr ArchInfo arch_infos[ArchInfo::NUM_ARCH_INFOS] = {
-    ArchInfo("Raspberry Pi b", 0x20000000, 16, 1),
-    ArchInfo("Raspberry Pi b+", 0x20000000, 47, 0),
-    ArchInfo("Raspberry Pi b 2", 0x3F000000, 47, 0),
-};
 
 const ArchInfo *arch_info;
 
@@ -65,25 +57,17 @@ const char *find(const char *str, const char *token) {
 
 // kernel main function, it all begins here
 void kernel_main(uint32_t r0, uint32_t r1, const Header *atags) {
-    // Fixgure out what kind of Raspberry we are booting on
-    // default to basic Raspberry Pi
-    arch_info = &arch_infos[ArchInfo::RPI];
-    const Cmdline *cmdline = atags->find<Cmdline>();
-    if (find(cmdline->cmdline, "bcm2708.disk_led_gpio=47")) {
-	arch_info = &arch_infos[ArchInfo::RPIplus];
-    }
-    if (find(cmdline->cmdline, "bcm2709.disk_led_gpio=47")) {
-	arch_info = &arch_infos[ArchInfo::RPI2];
-    }
-    
+    // Only Raspberry Pi 2 is supported
+    const char model_name[] = "Raspberry Pi b 2\0";
+    const char hello[] = "\n\nRaspbootin (Modded for CPEN-432) V1.1\n\n\0";
+    const char done_str[] = "booting your kernel...\n\n\0";
+    const char size_err[] = "The kernel is too big: \0";
+
+    ArchInfo info(model_name, 0x3F000000, 47, 0);
+    arch_info = &info;
+
     UART::init();
-again:
-    kprintf(hello);
-    kprintf("######################################################################\n");
-    kprintf("R0 = %#010lx, R1 = %#010lx, ATAGs @ %p\n", r0, r1, atags);
-    atags->print_all();
-    kprintf("Detected '%s'\n", arch_info->model);
-    kprintf("######################################################################\n");
+    UART::puts(hello);
 
     // request kernel by sending 3 breaks
     UART::puts("\x03\x03\x03");
@@ -95,10 +79,19 @@ again:
     size |= UART::getc() << 24;
 
     if (0x8000 + size > LOADER_ADDR) {
-	UART::puts("SE");
-	goto again;
+	UART::putc('S');
+	UART::putc('E');
+
+	UART::puts(size_err);
+	printnumk(10, size);
+	UART::putc('\n');
+
+	while(1) {
+	    for(volatile int i = 0; i < 1000000; ++i) { }
+	}
     } else {
-	UART::puts("OK");
+	UART::putc('O');
+	UART::putc('K');
     }
     
     // get kernel
@@ -107,16 +100,13 @@ again:
 	*kernel++ = UART::getc();
     }
 
-    // Kernel is loaded at 0x8000, call it via function pointer
-    UART::puts("booting...");
+    // Print done
+    UART::puts(done_str);
+
+    // Disable uart to prevent stray characters
+    UART::deinit();
+
     entry_fn fn = (entry_fn)0x8000;
     fn(r0, r1, atags);
-
-    // fn() should never return. But it might, so make sure we catch it.
-    // Wait a bit
-    for(volatile int i = 0; i < 10000000; ++i) { }
-
-    // Say goodbye and return to boot.S to halt.
-    UART::puts(halting);
 }
 

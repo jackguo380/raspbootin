@@ -118,6 +118,11 @@ namespace UART {
 	MMIO::write(UART0_CR, (1 << 0) | (1 << 8) | (1 << 9));
     }
 
+    void deinit(void) {
+	// Disable UART0.
+	MMIO::write(UART0_CR, 0x00000000);
+    }
+
     /*
      * Transmit a byte via UART0.
      * uint8_t Byte: byte to send.

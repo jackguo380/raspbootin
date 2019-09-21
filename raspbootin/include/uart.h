@@ -28,6 +28,11 @@ namespace UART {
     void init(void);
 
     /*
+     * Turn the UART back off
+     */
+    void deinit(void);
+
+    /*
      * Transmit a byte via UART0.
      * uint8_t Byte: byte to send.
      */
