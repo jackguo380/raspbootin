@@ -16,8 +16,7 @@
 #  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 # build environment
-PREFIX ?= /usr
-ARMGNU ?= $(PREFIX)/bin/arm-none-eabi
+ARMGNU ?= arm-none-eabi
 
 # source files
 SOURCES_ASM := $(wildcard *.S)
