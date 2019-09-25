@@ -19,7 +19,7 @@ This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ```
 
-To build:
+To build run `make`. This will build `raspbootin/kernel.img` and `raspbootcom/raspbootcom`
 
 ```sh
 $ make
@@ -37,8 +37,10 @@ $ cd rpi-firmware
 $ cp boot/start.elf boot/bootcode.bin /mnt/myraspberrypi-sdcard
 ```
 
-Then copy the `raspbootin/kernel.img` and `raspbootin/config.txt` to the SD Card for the Raspberry Pi 2.
+Then copy the `raspbootin/kernel.img` and `raspbootin/config.txt`
+built in the previous step to the SD Card for the Raspberry Pi 2.
 ```sh
+$ make
 $ cp raspbootin/config.txt /mnt/myraspberrypi-sdcard/
 $ cp raspbootin/kernel.img /mnt/myraspberrypi-sdcard/kernel7.img
 ```
@@ -53,7 +55,7 @@ start.elf
 
 #### Loading new Kernels
 1. Ensure the Raspberry Pi is off and the serial cable is correctly plugged in.
-2. Run `raspbootcom`
+2. Run the `raspbootcom` executable that was built.
 ```sh
 $ ./raspbootcom/raspbootcom /dev/ttyUSB0 /path/to/my/kernel.img
 ```
