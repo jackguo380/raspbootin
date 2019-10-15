@@ -29,7 +29,24 @@
 // r2 -> 0x00000100 - start of ATAGS
 // preserve these registers as argument for kernel_main
 Start:
+        // Check and exit hypervisor mode
+        mrs r0, cpsr          //@ Fetch the cpsr register             
+	and r1,r0,#0x1F
+	cmp r1,#0x1A
+	bne .START
+
+	bic r0,r0,#0x1F
+	orr r0,r0,#0x13
+
+	msr SPSR_hyp,r0
+	ldr r0,=.START
+	mov lr, r0
+	msr ELR_hyp,r0
+	eret
+
 	// Setup the stack.
+.START:
+	nop
 	mov	sp, #0x8000
 
 	// we're loaded at 0x8000, relocate to _start.
@@ -38,7 +55,7 @@ Start:
 	//mov	r3, #0x8000
 	//ldr	r4, =_start
 	//ldr	r9, =_data_end
-1:
+
 	//// Load multiple from r3, and store at r4.
 	//ldmia	r3!, {r5-r8}
 	//stmia	r4!, {r5-r8}
@@ -47,6 +64,7 @@ Start:
 	//cmp	r4, r9
 	//blo	1b
 
+.CLEARBSS:
 	// Clear out bss.
 	ldr	r4, =_bss_start
 	ldr	r9, =_bss_end
@@ -54,13 +72,13 @@ Start:
 	mov	r6, #0
 	mov	r7, #0
 	mov	r8, #0
-1:
+.BSSLOOP:
 	// store multiple at r4.
 	stmia	r4!, {r5-r8}
 
 	// If we're still below bss_end, loop.
 	cmp	r4, r9
-	blo	1b
+	blo	.BSSLOOP
 
 	// Call kernel_main
 	ldr	r3, =kernel_main
